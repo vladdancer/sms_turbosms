@@ -1,2 +1,2 @@
 # sms_turbosms
-Turbosms gateway for smsframework
+TurboSMS gateway for sms_framework

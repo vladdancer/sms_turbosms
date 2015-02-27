@@ -4,8 +4,8 @@ INSTALLATION
 2. Setup module.
    - Register in the system http://turbosms.ua/. Add the sender's signature.
       In the section "Connecting to the gateway" set up a login and password
-	  gateway, select connection method - SQL. 10 test sms with registration
-	  are provided free.
+      gateway, select connection method - SQL. 10 test sms with registration
+      are provided free.
   - Specify in the **settings.php** settings for connecting to a server table
 
 **Example:**
