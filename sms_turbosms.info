@@ -1,8 +1,9 @@
 name = TurboSMS UA Gateway
-description = 'TurboSMS — это сервис для быстрого и эффективного оповещения Ваших клиентов,
- партнёров и сотрудников посредством sms рассылки. <a href="http://turbosms.ua">TurboSMS UA Gateway</a>'
-
-dependencies[] = sms
-
-configure = admin/smsframework/gateways/sms_turbosms
+description = TurboSMS — is a service for the rapid and effective warning to your customers, partners and employees by sending sms. <a href="http://turbosms.ua">TurboSMS UA Gateway</a>
 core = 7.x
+
+; Config page.
+configure = admin/smsframework/gateways/sms_turbosms
+
+; Dependencies.
+dependencies[] = sms

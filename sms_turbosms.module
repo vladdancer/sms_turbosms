@@ -1,18 +1,27 @@
 <?php
-
-// Also @see https://www.drupal.org/sandbox/Vik/1993102
+/**
+ * @file
+ * sms_turbosms.module file.
+ *
+ * @see https://www.drupal.org/sandbox/Vik/1993102
+ */
 
 /**
- * Implemention of hook_gateway_info()
+ * Implements hook_gateway_info().
+ *
  * Create new sms gateway.
- * Writing a Gateway Module. Check http://drupal.org/node/362261
+ *
+ * Writing a Gateway Module.
+ *
+ * Check http://drupal.org/node/362261
+ *
  * @return array
  */
 function sms_turbosms_gateway_info() {
   return array(
     'sms_turbosms' => array(
-      'name' => 'TurboSMS UA Gateway',
-      'send' => 'sms_turbosms_send',
+      'name'    => 'TurboSMS UA Gateway',
+      'send'    => 'sms_turbosms_send',
       'receive' => TRUE,
     )
   );
@@ -20,28 +29,40 @@ function sms_turbosms_gateway_info() {
 
 /**
  * Gateway send function.
+ *
  * @param string $number
+ *   Telephone number.
+ *
  * @param string $message
+ *   Message.
+ *
  * @param array $options
- * @return array $result
+ *   Options array.
+ *
+ * @return array
+ *   Result array.
  */
 function sms_turbosms_send($number, $message, $options) {
-  $result = _write_message($number, $message);
-  return $result;
+  return _write_message($number, $message);
 }
 
 /**
- * Helper function.
- * Write entry to remote turbosms db user table.
- * @param type $number
- * @param type $message
- * @return string|array
+ * Helper function for a writing entry to remote turbosms db user table.
+ *
+ * @param string $number
+ *   Telephone number.
+ *
+ * @param string $message
+ *   Message.
+ *
+ * @return array
+ *   Result array.
  */
 function _write_message($number = NULL, $message = NULL) {
   if (empty($number)) {
     return array(
-      'status' => FALSE,
-      'message' => 'Bad phone number: %number',
+      'status'    => FALSE,
+      'message'   => 'Bad phone number: %number',
       'variables' => array('%number', $number),
     );
   }
@@ -53,23 +74,22 @@ function _write_message($number = NULL, $message = NULL) {
     }
     catch (Exception $e) {
       $result = array(
-        'status' => FALSE,
-        'message' => 'Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>',
+        'status'    => FALSE,
+        'message'   => 'Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>',
         'variables' => array('%error', $e->getMessage()),
       );
       return $result;
     }
   
   $table_name = variable_get("sms_turbosms_login", "");
-
   $transaction_id = db_insert($table_name)
     ->fields(array(
-      'number' => $number,
-      'sign' => variable_get("sms_turbosms_sender", ""),
+      'number'  => $number,
+      'sign'    => variable_get("sms_turbosms_sender", ""),
       'message' => $message,
     ))
     ->execute();
-  // check db_insert status
+  // Check db_insert status.
   if (!empty($transaction_id)) {
     $result = array(
       'status' => TRUE,
@@ -77,8 +97,8 @@ function _write_message($number = NULL, $message = NULL) {
   }
   else {
     $result = array(
-      'status' => FALSE,
-      'message' => 'Something happend wrong while inserting new entry to "%table" table',
+      'status'    => FALSE,
+      'message'   => 'Something happend wrong while inserting new entry to "%table" table',
       'variables' => array('%table', $table_name),
     );
   }
