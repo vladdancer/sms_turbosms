@@ -1,0 +1,23 @@
+{ "rules_send_sms" : {
+    "LABEL" : "Send sms",
+    "PLUGIN" : "reaction rule",
+    "TAGS" : [ "sms" ],
+    "REQUIRES" : [ "rules", "sms", "webform_rules" ],
+    "ON" : [ "webform_rules_insert" ],
+    "IF" : [
+      { "user_has_role" : {
+          "account" : [ "site:current-user" ],
+          "roles" : { "value" : { "1" : "1", "2" : "2", "3" : "3" } },
+          "operation" : "OR"
+        }
+      }
+    ],
+    "DO" : [
+      { "sms_send" : {
+          "to" : "+380...",
+          "message" : ""
+        }
+      }
+    ]
+  }
+}
