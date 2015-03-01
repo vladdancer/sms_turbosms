@@ -98,10 +98,23 @@ function _write_message($number = NULL, $message = NULL) {
   else {
     $result = array(
       'status'    => FALSE,
-      'message'   => 'Something happend wrong while inserting new entry to "%table" table',
+      'message'   => 'Something happened wrong while inserting new entry to "%table" table',
       'variables' => array('%table', $table_name),
     );
   }
   db_set_active();
   return $result;
+}
+
+/**
+ * Get database connection info.
+ *
+ * @param string $key
+ *   Database key for getting the database connection info.
+ *
+ * @return array
+ *   Array of database connection info.
+ */
+function sms_turbosms_get_db_info($key){
+  return Database::getConnectionInfo($key);
 }
