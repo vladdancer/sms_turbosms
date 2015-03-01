@@ -115,6 +115,6 @@ function _write_message($number = NULL, $message = NULL) {
  * @return array
  *   Array of database connection info.
  */
-function sms_turbosms_get_db_info($key){
+function sms_turbosms_get_db_info($key = 'default') {
   return Database::getConnectionInfo($key);
 }
