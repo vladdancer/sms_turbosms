@@ -23,8 +23,29 @@ function sms_turbosms_gateway_info() {
       'name'    => 'TurboSMS UA Gateway',
       'send'    => 'sms_turbosms_send',
       'receive' => TRUE,
+      'configure form' => 'sms_turbosms_gateway_admin_form',
     )
   );
+}
+
+/**
+ * TurboSMS config form callback.
+ *
+ * @return array
+ *   Drupal form array.
+ */
+function sms_turbosms_gateway_admin_form() {
+  $form = array();
+  $form['sms_turbosms'] = array(
+    '#type'   => 'fieldset',
+    '#title'  => t('TurboSMS gateway settings'),
+  );
+  $form['sms_turbosms']['sign'] = array(
+    '#type'     => 'textfield',
+    '#title'    => t('TurboSMS Sign'),
+    '#required' => TRUE,
+  );
+  return $form;
 }
 
 /**
