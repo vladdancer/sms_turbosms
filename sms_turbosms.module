@@ -64,77 +64,12 @@ function sms_turbosms_gateway_admin_form() {
  *   Result array.
  */
 function sms_turbosms_send($number, $message, $options) {
-  return _write_message($number, $message);
-}
+  $gateway = new TurboSMS();
 
-/**
- * Helper function for a writing entry to remote turbosms db user table.
- *
- * @param string $number
- *   Telephone number.
- *
- * @param string $message
- *   Message.
- *
- * @return array
- *   Result array.
- */
-function _write_message($number = NULL, $message = NULL) {
-  if (empty($number)) {
-    return array(
-      'status'    => FALSE,
-      'message'   => 'Bad phone number: %number',
-      'variables' => array('%number', $number),
-    );
+  if (!$gateway) {
+    return $gateway->getStatus();
   }
-  if (sms_turbosms_check_db()) {
-    $table_name = variable_get("sms_turbosms_login", "");
-    $transaction_id = db_insert($table_name)
-      ->fields(array(
-        'number'  => $number,
-        'sign'    => variable_get("sms_turbosms_sender", ""),
-        'message' => $message,
-      ))
-      ->execute();
-    // Check db_insert status.
-    if (!empty($transaction_id)) {
-      $result = array(
-        'status' => TRUE,
-      );
-    }
-    else {
-      $result = array(
-        'status'    => FALSE,
-        'message'   => 'Something happened wrong while inserting new entry to "%table" table',
-        'variables' => array('%table', $table_name),
-      );
-    }
-    db_set_active();
-    return $result;
-  }
-  return FALSE;
-}
+  $result = $gateway->send($number, $message)->getStatus();
 
-/**
- * Check gateway DB connection.
- *
- * @return array|bool
- *   TRUE if connection success, otherwise throw an Exception.
- */
-function sms_turbosms_check_db() {
-  try {
-    // This doesn't actually test the connection.
-    db_set_active('sms_turbosms');
-    // Now actually do a check.
-    Database::getConnection();
-  }
-  catch (Exception $e) {
-    $result = array(
-      'status'    => FALSE,
-      'message'   => 'Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>',
-      'variables' => array('%error', $e->getMessage()),
-    );
-    return $result;
-  }
-  return TRUE;
+  return $result;
 }
