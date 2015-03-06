@@ -87,55 +87,54 @@ function _write_message($number = NULL, $message = NULL) {
       'variables' => array('%number', $number),
     );
   }
-  try {
-      // This doesn't actually test the connection.
-      db_set_active('sms_turbosms');
-      // Now actually do a check.
-      Database::getConnection();
+  if (sms_turbosms_check_gateway_db()) {
+    $table_name = variable_get("sms_turbosms_login", "");
+    $transaction_id = db_insert($table_name)
+      ->fields(array(
+        'number'  => $number,
+        'sign'    => variable_get("sms_turbosms_sender", ""),
+        'message' => $message,
+      ))
+      ->execute();
+    // Check db_insert status.
+    if (!empty($transaction_id)) {
+      $result = array(
+        'status' => TRUE,
+      );
     }
-    catch (Exception $e) {
+    else {
       $result = array(
         'status'    => FALSE,
-        'message'   => 'Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>',
-        'variables' => array('%error', $e->getMessage()),
+        'message'   => 'Something happened wrong while inserting new entry to "%table" table',
+        'variables' => array('%table', $table_name),
       );
-      return $result;
     }
-  
-  $table_name = variable_get("sms_turbosms_login", "");
-  $transaction_id = db_insert($table_name)
-    ->fields(array(
-      'number'  => $number,
-      'sign'    => variable_get("sms_turbosms_sender", ""),
-      'message' => $message,
-    ))
-    ->execute();
-  // Check db_insert status.
-  if (!empty($transaction_id)) {
-    $result = array(
-      'status' => TRUE,
-    );
+    db_set_active();
+    return $result;
   }
-  else {
-    $result = array(
-      'status'    => FALSE,
-      'message'   => 'Something happened wrong while inserting new entry to "%table" table',
-      'variables' => array('%table', $table_name),
-    );
-  }
-  db_set_active();
-  return $result;
+  return FALSE;
 }
 
 /**
  * Get database connection info.
  *
- * @param string $key
- *   Database key for getting the database connection info.
- *
  * @return array
  *   Array of database connection info.
  */
-function sms_turbosms_get_db_info($key = 'default') {
-  return Database::getConnectionInfo($key);
+function sms_turbosms_check_gateway_db() {
+  try {
+    // This doesn't actually test the connection.
+    db_set_active('sms_turbosms');
+    // Now actually do a check.
+    Database::getConnection();
+  }
+  catch (Exception $e) {
+    $result = array(
+      'status'    => FALSE,
+      'message'   => 'Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>',
+      'variables' => array('%error', $e->getMessage()),
+    );
+    return $result;
+  }
+  return TRUE;
 }
