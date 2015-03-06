@@ -20,9 +20,9 @@
 function sms_turbosms_gateway_info() {
   return array(
     'sms_turbosms' => array(
-      'name'    => 'TurboSMS UA Gateway',
-      'send'    => 'sms_turbosms_send',
-      'receive' => TRUE,
+      'name'           => 'TurboSMS UA Gateway',
+      'send'           => 'sms_turbosms_send',
+      'receive'        => TRUE,
       'configure form' => 'sms_turbosms_gateway_admin_form',
     )
   );
