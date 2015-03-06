@@ -87,7 +87,7 @@ function _write_message($number = NULL, $message = NULL) {
       'variables' => array('%number', $number),
     );
   }
-  if (sms_turbosms_check_gateway_db()) {
+  if (sms_turbosms_check_db()) {
     $table_name = variable_get("sms_turbosms_login", "");
     $transaction_id = db_insert($table_name)
       ->fields(array(
@@ -116,12 +116,12 @@ function _write_message($number = NULL, $message = NULL) {
 }
 
 /**
- * Get database connection info.
+ * Check gateway DB connection.
  *
- * @return array
- *   Array of database connection info.
+ * @return array|bool
+ *   TRUE if connection success, otherwise throw an Exception.
  */
-function sms_turbosms_check_gateway_db() {
+function sms_turbosms_check_db() {
   try {
     // This doesn't actually test the connection.
     db_set_active('sms_turbosms');
