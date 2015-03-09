@@ -6,18 +6,30 @@
  * @since: 3/6/15 5:51 AM
  */
 
+/**
+ * Class TurboSMS.
+ */
 final class TurboSMS {
   private $_sign;
   private $_status;
 
+  /**
+   * Basic constructor method.
+   */
   public function __construct() {
     $this->connect();
   }
 
+  /**
+   * Connect to the TurboSMS database.
+   *
+   * @return array|bool
+   */
   private function connect() {
     try {
       db_set_active('sms_turbosms');
       Database::getConnection();
+      return TRUE;
     }
     catch (Exception $e) {
       $result = array(
@@ -29,10 +41,27 @@ final class TurboSMS {
     }
   }
 
+  /**
+   * Disconnect from the TurboSMS database.
+   */
   private function disconnect() {
     db_set_active();
   }
 
+  /**
+   * Sender method.
+   *
+   * @param string $number
+   *   Telephone number.
+   *
+   * @param string $message
+   *   Message to send.
+   *
+   * @return array
+   *   Result array.
+   *
+   * @throws \Exception
+   */
   public function send($number, $message) {
     if (empty($number)) {
       return array(
@@ -80,9 +109,8 @@ final class TurboSMS {
     return $this->_status;
   }
 
-  function __toString() {
+  public function __toString() {
     $status = $this->getStatus();
     return $status['status'] ? '0' : '1';
   }
-
-} 
+}
