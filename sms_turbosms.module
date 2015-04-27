@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * sms_turbosms.module file.
+ * Basic module file.
  *
  * @see https://www.drupal.org/sandbox/Vik/1993102
  */
@@ -14,8 +14,6 @@
  * Writing a Gateway Module.
  *
  * Check http://drupal.org/node/362261
- *
- * @return array
  */
 function sms_turbosms_gateway_info() {
   return array(
@@ -37,8 +35,8 @@ function sms_turbosms_gateway_info() {
 function sms_turbosms_gateway_admin_form() {
   $form = array();
   $form['sms_turbosms'] = array(
-    '#type'   => 'fieldset',
-    '#title'  => t('TurboSMS gateway settings'),
+    '#type'  => 'fieldset',
+    '#title' => t('TurboSMS gateway settings'),
   );
   $form['sms_turbosms']['sign'] = array(
     '#type'     => 'textfield',
@@ -63,13 +61,11 @@ function sms_turbosms_gateway_admin_form() {
  * @return array
  *   Result array.
  */
-function sms_turbosms_send($number, $message, $options) {
+function sms_turbosms_send($number, $message, $options = array()) {
   $gateway = new TurboSMS();
-
   if (!$gateway) {
     return $gateway->getStatus();
   }
-  $result = $gateway->send($number, $message)->getStatus();
-
-  return $result;
+  $gateway->send($number, $message);
+  return $gateway->getStatus();
 }
