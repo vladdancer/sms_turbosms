@@ -1,43 +1,77 @@
 <?php
 /**
  * @file
- * Contains TurboSMS.php.
+ * TurboSMS class file definition.
+ *
  * @author: Vladyslav Moyseenko <vlad.dancer@gmail.com>
- * @since: 3/6/15 5:51 AM
+ * @author: Valentine Matsveiko <mve@drupalway.net>
  */
 
 /**
  * Class TurboSMS.
  */
-final class TurboSMS {
-  private $_sign;
-  private $_status;
+class TurboSMS {
+  /**
+   * Sign.
+   *
+   * @var string
+   */
+  private $sign = '';
+  /**
+   * Status data array.
+   *
+   * @var array
+   */
+  private $status = array();
+  /**
+   * User login table name.
+   *
+   * @var string
+   */
+  private $userLogin = 'table_name';
 
   /**
    * Basic constructor method.
    */
   public function __construct() {
+    // Set the Sign value.
+    $this->setSign(variable_get('sms_turbosms_sender', ''));
+    // Set the default value to the status array.
+    $this->setStatus();
+    // Connect to the TurboSMS database.
     $this->connect();
   }
 
   /**
-   * Connect to the TurboSMS database.
+   * Set sign.
    *
-   * @return array|bool
+   * @param string $sign
+   *   Sign value.
+   */
+  private function setSign($sign) {
+    $this->sign = $sign;
+  }
+
+  /**
+   * Get sign.
+   *
+   * @return string
+   *   Sign value.
+   */
+  public function getSign() {
+    return $this->sign;
+  }
+
+  /**
+   * Connect to the TurboSMS database.
    */
   private function connect() {
     try {
       db_set_active('sms_turbosms');
       Database::getConnection();
-      return TRUE;
     }
     catch (Exception $e) {
-      $result = array(
-        'status'    => FALSE,
-        'message'   => 'Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>',
-        'variables' => array('%error', $e->getMessage()),
-      );
-      return $result;
+      $this->setStatus(FALSE, 'Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>', array('%error', $e->getMessage()));
     }
   }
 
@@ -56,61 +90,65 @@ final class TurboSMS {
    *
    * @param string $message
    *   Message to send.
-   *
-   * @return array
-   *   Result array.
-   *
-   * @throws \Exception
    */
   public function send($number, $message) {
     if (empty($number)) {
-      return array(
-        'status'    => FALSE,
-        'message'   => 'Empty phone number: %number',
-        'variables' => array('%number', $number),
-      );
+      $this->setStatus(FALSE, 'Empty phone number: %number', array('%number', $number));
+      return;
     }
-
-    $transaction_id = db_insert($user_login)
-      ->fields(array(
-        'number'  => $number,
-        'sign'    => variable_get("sms_turbosms_sender", ""),
-        'message' => $message,
-      ))
-      ->execute();
-
-    if (!empty($transaction_id)) {
-      $result = array('status' => TRUE);
+    $fields = array(
+      'number'  => $number,
+      'sign'    => $this->sign,
+      'message' => $message,
+    );
+    $transaction_id = db_insert($this->userLogin)->fields($fields)->execute();
+    if (empty($transaction_id)) {
+      $message = 'Something happened wrong while inserting new entry to "%table" table';
+      $this->setStatus(FALSE, $message, array('%table', $this->userLogin));
     }
     else {
-      $result = array(
-        'status'    => FALSE,
-        'message'   => 'Something happened wrong while inserting new entry to "%table" table',
-        'variables' => array('%table', $user_login),
-      );
+      $this->setStatus();
     }
     $this->disconnect();
-    return $result;
   }
 
-  public function get() {}
-
-  public function setStatus($status, $message = NULL, $variables = NULL) {
-    $this->_status['status'] = $status;
-    if ($message) {
-      $this->_status['message'] = $message;
-      if ($variables) {
-        $this->_status['variables'] = $variables;
-      }
-    }
+  /**
+   * Set the status data.
+   *
+   * @param bool $status
+   *   Status data.
+   *
+   * @param string $message
+   *   Status message.
+   *
+   * @param array $variables
+   *   Status variables.
+   */
+  public function setStatus($status = TRUE, $message = NULL, $variables = array()) {
+    $this->status['status']    = $status;
+    $this->status['message']   = $message;
+    $this->status['variables'] = $variables;
   }
 
+  /**
+   * Get status.
+   *
+   * @return mixed
+   *   Status data.
+   */
   public function getStatus() {
-    return $this->_status;
+    return $this->status;
   }
 
+  /**
+   * Convert status data to string.
+   *
+   * @return string
+   *   Status string.
+   */
   public function __toString() {
     $status = $this->getStatus();
     return $status['status'] ? '0' : '1';
   }
+
 }
