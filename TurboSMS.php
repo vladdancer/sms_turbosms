@@ -103,9 +103,12 @@ class TurboSMS {
     );
     $transaction_id = db_insert($this->userLogin)->fields($fields)->execute();
     if (empty($transaction_id)) {
-      $this->setStatus(FALSE, 'Something happened wrong while inserting new entry to "%table" table', array('%table', $this->userLogin));
+      $message = 'Something happened wrong while inserting new entry to "%table" table';
+      $this->setStatus(FALSE, $message, array('%table', $this->userLogin));
     }
-    $this->setStatus();
+    else {
+      $this->setStatus();
+    }
     $this->disconnect();
   }
 
