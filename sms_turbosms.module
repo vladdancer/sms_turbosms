@@ -3,17 +3,17 @@
  * @file
  * Basic module file.
  *
- * @see https://www.drupal.org/sandbox/Vik/1993102
- */
-
-/**
- * Implements hook_gateway_info().
- *
  * Create new sms gateway.
  *
  * Writing a Gateway Module.
  *
  * Check http://drupal.org/node/362261
+ *
+ * @see https://www.drupal.org/sandbox/Vik/1993102
+ */
+
+/**
+ * Implements hook_gateway_info().
  */
 function sms_turbosms_gateway_info() {
   return array(
